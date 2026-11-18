@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Kalung</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      font-family: sans-serif;
+      background: #0f2545;
+    }
+
+    header {
+      padding: 15px 20px;
+      background: #222;
+    }
+
+    .back {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .back:hover { text-decoration: underline; }
+
+    model-viewer {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      background-color: #0f2545;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="index.html">← Kembali</a>
+  </header>
+
+  <model-viewer
+    src="kalung.glb"
+    alt="Detail Kalung"
+    camera-controls
+    auto-rotate
+    shadow-intensity="1"
+    environment-image="neutral"
+    ar>
+  </model-viewer>
+</body>
+</html>

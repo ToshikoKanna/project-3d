@@ -7,11 +7,7 @@
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
   <style>
     * { box-sizing: border-box; }
-
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
+    html, body { height: 100%; margin: 0; }
 
     body {
       display: flex;
@@ -33,7 +29,7 @@
       background: #f2f2f2;
     }
 
-    button {
+    .buttons button {
       padding: 10px 20px;
       margin: 5px;
       font-size: 16px;
@@ -43,35 +39,125 @@
       color: #fff;
       cursor: pointer;
     }
+    .buttons button:hover { background: #555; }
 
-    button:hover { background: #555; }
+    /* Hotspot (titik klik) */
+    .hotspot {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      background: #ff7a00;
+      box-shadow: 0 0 0 6px rgba(255, 122, 0, 0.35);
+      cursor: pointer;
+    }
+    .hotspot:hover { background: #ffa040; }
+
+    /* Label di samping titik */
+    .hotspot::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #222;
+      color: #fff;
+      font-size: 14px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
   <model-viewer id="viewer"
-    src="Sapi IFLC.glb"
+    src="kandang.glb"
     alt="Produk 3D"
     camera-controls
-    auto-rotate
+    camera-orbit="0deg 75deg 60%"
     shadow-intensity="1"
     environment-image="neutral"
     ar>
+
+    <!-- Hotspot 1: tangki digester di Farm -->
+    <button slot="hotspot-digester"
+      class="hotspot"
+      data-model="kandang.glb"
+      data-label="Waste Valorization & Anaerobic Digestion"
+      data-position="-0.363m 0.039m 0.204m"
+      data-normal="0.037m -0.004m 0.999m"
+      onclick="if (!event.shiftKey) location.href='anaerobic-digestion.html'">
+    </button>
+
+    <!-- Hotspot 2: kalung di model sapi -->
+    <button slot="hotspot-kalung"
+  class="hotspot"
+  data-model="Sapi IFLC.glb"
+  data-label="Details of the Cow Necklace"
+  data-position="10.809m 6.332m 5.322m"
+  data-normal="-0.735m 0.644m -0.213m"
+  onclick="if (!event.shiftKey) location.href='detail-kalung.html'">
+</button>
+
   </model-viewer>
 
   <div class="buttons">
     <button onclick="ganti('Sapi IFLC.glb')">Cow Necklace</button>
-    <button onclick="ganti('kalung.glb')">Details of the Cow Necklace</button>
     <button onclick="ganti('AyamKaki.glb')">Chicken leg ring</button>
     <button onclick="ganti('Ayam.glb')">Chicken Biometric Module</button>
     <button onclick="ganti('kandang.glb')">Farm</button>
-
   </div>
 
   <script>
+    const viewer = document.getElementById('viewer');
+    const hotspots = document.querySelectorAll('.hotspot');
+
     function ganti(file) {
-      document.getElementById('viewer').src = file;
+      viewer.src = file;
+      aturHotspot(file);
     }
+
+    // Hotspot hanya tampil di model yang sesuai.
+    // Auto-rotate dimatikan di model yang punya hotspot agar titik tidak bergeser.
+    function aturHotspot(file) {
+      let adaHotspot = false;
+      hotspots.forEach(h => {
+        const cocok = h.dataset.model === file;
+        h.hidden = !cocok;
+        if (cocok) adaHotspot = true;
+      });
+
+      if (adaHotspot) {
+        viewer.removeAttribute('auto-rotate');
+      } else {
+        viewer.setAttribute('auto-rotate', '');
+      }
+    }
+
+    // Terapkan pengaturan awal saat halaman dibuka
+    aturHotspot(viewer.getAttribute('src'));
+
+    // KALIBRASI: Shift + klik pada titik yang ingin dipasang, lalu cek Console (F12)
+    viewer.addEventListener('click', (e) => {
+      if (!e.shiftKey) return;
+      const rect = viewer.getBoundingClientRect();
+      const hit = viewer.positionAndNormalFromPoint(
+        e.clientX - rect.left,
+        e.clientY - rect.top
+      );
+      if (!hit) {
+        console.log('Klik tidak mengenai model');
+        return;
+      }
+      const p = hit.position;
+      const n = hit.normal;
+      console.log(`data-position="${p.x.toFixed(3)}m ${p.y.toFixed(3)}m ${p.z.toFixed(3)}m"`);
+      console.log(`data-normal="${n.x.toFixed(3)}m ${n.y.toFixed(3)}m ${n.z.toFixed(3)}m"`);
+    });
   </script>
 </body>
 </html>
